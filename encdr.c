@@ -22,7 +22,7 @@ static struct gpio encdr[] = {
 	{71, GPIOF_DIR_IN | GPIOF_EXPORT_DIR_FIXED, "PIN_B"},
 };
 
-static irqnum[2];
+static int irqnum[2];
 
 static irq_handler_t encdr_isr(unsigned irqnum, void *dev_id,
 					struct pt_regs *regs);
@@ -34,14 +34,26 @@ static int __init encdr_init(void)
 {
 	gpio_request_array(leds, ARRAY_SIZE(leds));
 	gpio_request_array(encdr, ARRAY_SIZE(encdr));
-	
-	for (size_t i = 0; i < ARRAY_SIZE(encdr); i++) {
+	size_t i;	
+	for (i = 0; i < ARRAY_SIZE(encdr); i++) {
 		irqnum[i] = gpio_to_irq(encdr[i].gpio);
 		request_irq(irqnum[i], (irq_handler_t) encdr_isr, 
 			IRQF_TRIGGER_RISING, "encdr handler", NULL);
 	}
 
+	printk(KERN_INFO "ENCDR: siema\n");
 	return 0;
+}
+
+static void __exit encdr_exit(void)
+{
+	size_t i;
+	for (i = 0; i < ARRAY_SIZE(encdr); i++) 
+		free_irq(irqnum[i], NULL);
+
+	gpio_free_array(encdr, ARRAY_SIZE(encdr));
+	gpio_free_array(leds, ARRAY_SIZE(leds));
+	printk(KERN_INFO "ENCDR: nara!\n");
 }
 
 
@@ -49,10 +61,8 @@ static int __init encdr_init(void)
 
 
 
-
-
-
-
+module_init(encdr_init);
+module_exit(encdr_exit);
 
 
 
