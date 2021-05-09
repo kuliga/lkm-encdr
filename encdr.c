@@ -22,6 +22,7 @@ static struct gpio encdr[] = {
 	{71, GPIOF_DIR_IN | GPIOF_EXPORT_DIR_FIXED, "PIN_B"},
 };
 
+static irqnum[2];
 
 static irq_handler_t encdr_isr(unsigned irqnum, void *dev_id,
 					struct pt_regs *regs);
@@ -33,6 +34,15 @@ static int __init encdr_init(void)
 {
 	gpio_request_array(leds, ARRAY_SIZE(leds));
 	gpio_request_array(encdr, ARRAY_SIZE(encdr));
+	
+	for (size_t i = 0; i < ARRAY_SIZE(encdr); i++) {
+		irqnum[i] = gpio_to_irq(encdr[i].gpio);
+		request_irq(irqnum[i], (irq_handler_t) encdr_isr, 
+			IRQF_TRIGGER_RISING, "encdr handler", NULL);
+	}
+
+	return 0;
+}
 
 
 
