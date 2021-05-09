@@ -34,8 +34,8 @@ static int __init encdr_init(void)
 {
 	gpio_request_array(leds, ARRAY_SIZE(leds));
 	gpio_request_array(encdr, ARRAY_SIZE(encdr));
-	size_t i;	
-	for (i = 0; i < ARRAY_SIZE(encdr); i++) {
+	//size_t i;	
+	for (size_t i = 0; i < ARRAY_SIZE(encdr); i++) {
 		irqnum[i] = gpio_to_irq(encdr[i].gpio);
 		request_irq(irqnum[i], (irq_handler_t) encdr_isr, 
 			IRQF_TRIGGER_RISING, "encdr handler", NULL);
@@ -56,7 +56,11 @@ static void __exit encdr_exit(void)
 	printk(KERN_INFO "ENCDR: nara!\n");
 }
 
-
+static irq_handler_t encdr_isr(unsigned irqnum, void *dev_id,
+					struct pt_regs *regs)
+{
+	return 0;
+}
 
 
 
