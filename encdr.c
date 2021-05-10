@@ -58,7 +58,17 @@ static void __exit encdr_exit(void)
 static irq_handler_t encdr_isr(unsigned irqnum, void *dev_id,
 					struct pt_regs *regs)
 {
-	static const u16 ab_states = 0b0001011111101000;
+	const u16 valid_states = 0b0110100110010110;
+	static u8 ab_match_dir, ab_state;
+	u8 ab_curr = 0;
+	for (size_t i = 0; i < ARRAY_SIZE(encdr); i++)
+		ab_curr |= gpio_get_value(encdr[i].gpio) << i;
+		
+	ab_state <<= 2;
+	ab_state 
+	if (valid_states & (1 << )) {
+		
+	}
 	return 0;
 }
 
