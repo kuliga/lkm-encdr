@@ -59,21 +59,31 @@ static irq_handler_t encdr_isr(unsigned irqnum, void *dev_id,
 					struct pt_regs *regs)
 {
 	const u16 valid_states = 0b0110100110010110;
-	static u8 ab_match_dir, ab_state;
+	static u8 ab_match_dir, ab_state, rotary_counter; 
 	u8 ab_curr = 0;
 	for (size_t i = 0; i < ARRAY_SIZE(encdr); i++)
 		ab_curr |= gpio_get_value(encdr[i].gpio) << i;
 		
 	ab_state <<= 2;
-	ab_state 
-	if (valid_states & (1 << )) {
-		
+	ab_state |= ab_curr;
+	if (valid_states & (1 << (ab_state & 0x0f))) {
+		ab_match_dir <<= 4;
+		ab_match_dir |= ab_state;
+		switch (ab_match_dir) {
+		case 0x2b:
+			rotary_counter++;
+			goto isr_exit;
+		case 0x17:
+			rotary_counter--;
+			goto isr_exit;
+		default:
+			goto isr_exit;
+		}
 	}
+isr_exit:
+	printk(KERN_INFO "ENCDR: %d\n", rotary_counter);
 	return 0;
 }
-
-
-
 
 module_init(encdr_init);
 module_exit(encdr_exit);
